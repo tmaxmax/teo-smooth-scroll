@@ -1,0 +1,16 @@
+{
+  "name": "teo_smooth_scroll",
+  "version": "1.0.0",
+  "description": "This vanilla Javascript library enables smooth scrolling to any element or position in a container, be it the document or any container inside it.<br>It is also able to scroll inside any container set with `overflow: hidden`.",
+  "main": "app.js",
+  "dependencies": {},
+  "devDependencies": {
+    "eslint": "^6.8.0",
+    "eslint-config-google": "^0.14.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Teodor Maxim",
+  "license": "ISC"
+}
