@@ -1,0 +1,147 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+$Noto: 'Noto Serif', serif;
+
+* {
+  box-sizing: inherit;
+  margin: 0;
+  padding: 0;
+}
+
+body,
+html {
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+nav.aside {
+  position: fixed;
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%);
+  z-index: 1;
+  margin-right: 2em;
+
+  a {
+    display: block;
+    position: relative;
+    padding: 1em;
+
+    &::before {
+      content: '';
+      background-color: black;
+      border-radius: 100%;
+      width: 1em;
+      height: 1em;
+      position: absolute;
+      top: 25%;
+      right: 0;
+      transform: scale(0.5);
+      transition: transform 0.5s cubic-bezier(0.25, 0.1, 0.25, 1);
+    }
+
+    &.active {
+      &::before {
+        transform: scale(1);
+      }
+    }
+  }
+}
+
+section {
+  &.huge {
+    min-height: 100%;
+    padding: calc(2em + env(safe-area-inset-top)) calc(5.2em + env(safe-area-inset-right))
+      calc(2em + env(safe-area-inset-bottom)) calc(2em + env(safe-area-inset-left));
+  }
+
+  &.random-colored {
+    &:nth-of-type(5n + 1) {
+      background-color: #ebd680;
+    }
+
+    &:nth-of-type(5n + 2) {
+      background-color: #d9a328;
+    }
+
+    &:nth-of-type(5n + 3) {
+      background-color: #64a4cd;
+    }
+
+    &:nth-of-type(5n + 4) {
+      background-color: #af4735;
+    }
+
+    &:nth-of-type(5n) {
+      background-color: #06a3d8;
+    }
+  }
+
+  &.centered-vertical {
+    display: flex;
+    align-items: center;
+  }
+}
+
+$font-base-size: 16;
+
+@function typographic($min, $max, $scale-min, $scale-max) {
+  @return calc(
+    #{$min}em + (#{$max} - #{$min}) * #{$font-base-size} * ((100vw - #{$scale-min}px) /
+          (#{$scale-max} - #{$scale-min}))
+  );
+}
+
+$font-min-scale-screen-width: 320;
+$font-max-scale-screen-width: 1600;
+
+html,
+body {
+  font-size: #{$font-base-size}px;
+}
+
+$h1-font-min: 3;
+$h1-font-max: 6;
+h1 {
+  font-size: typographic(
+    $h1-font-min,
+    $h1-font-max,
+    $font-min-scale-screen-width,
+    $font-max-scale-screen-width
+  );
+  font-weight: bold;
+  line-height: 0.9em;
+}
+
+$h2-font-min: 2;
+$h2-font-max: 4;
+h2 {
+  font-size: typographic(
+    $h2-font-min,
+    $h2-font-max,
+    $font-min-scale-screen-width,
+    $font-max-scale-screen-width
+  );
+  font-weight: normal;
+}
+
+@media screen and (max-width: #{$font-min-scale-screen-width}px) {
+  h1 {
+    font-size: #{$h1-font-min}em;
+  }
+
+  h2 {
+    font-size: #{$h2-font-min}em;
+  }
+}
+
+@media screen and (min-width: #{$font-max-scale-screen-width}px) {
+  h1 {
+    font-size: #{$h1-font-max}em;
+  }
+
+  h2 {
+    font-size: #{$h2-font-max}em;
+  }
+}
