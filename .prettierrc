@@ -1,0 +1,15 @@
+{
+  "endOfLine": "lf",
+  "htmlWhitespaceSensitivity": "css",
+  "printWidth": 100,
+  "semi": false,
+  "singleQuote": true,
+  "tabWidth": 2,
+  "arrowParens": "avoid",
+  "overrides": [
+    { "files": ["*.html"], "options": { "parser": "html" } },
+    { "files": ["*.scss"], "options": { "parser": "scss" } },
+    { "files": ["*.json"], "options": { "parser": "json" } },
+    { "files": ["*.md"], "options": { "parser": "markdown" } }
+  ]
+}
