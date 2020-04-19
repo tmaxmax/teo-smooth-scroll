@@ -1,6 +1,6 @@
 'use strict';
 
-const htmlSectionLinks = document.querySelectorAll('nav.aside a');
+const htmlSectionLinks = document.querySelectorAll('nav.section-links a');
 
 const section = {
   get active() {
@@ -38,9 +38,20 @@ window.addEventListener('load', () => {
   }
 });
 
-window.addEventListener('wheel', (ev) => {
+const onWheel = (ev) => {
+  window.removeEventListener('wheel', onWheel);
+
   if (ev.deltaY > 0) htmlSectionLinks[section.next].click();
   else htmlSectionLinks[section.previous].click();
+
+  setTimeout(() => window.addEventListener('wheel', onWheel), 100);
+};
+
+window.addEventListener('wheel', onWheel);
+
+window.addEventListener('keyup', (ev) => {
+  if (ev.key === 'ArrowUp') htmlSectionLinks[section.previous].click();
+  else if (ev.key === 'ArrowDown') htmlSectionLinks[section.next].click();
 });
 
 (function() {
@@ -56,7 +67,7 @@ window.addEventListener('wheel', (ev) => {
     const touchEndPositionY = ev.touches[0].clientY;
     const delta = touchStartPositionY - touchEndPositionY;
 
-    if (Math.abs(delta) > 125) {
+    if (Math.abs(delta) > 200) {
       window.removeEventListener('touchmove', onTouchMove);
       window.addEventListener('touchend', onTouchEnd(delta), {once: true});
     }
