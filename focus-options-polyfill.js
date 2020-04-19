@@ -1,3 +1,8 @@
+/* eslint-disable no-invalid-this */
+
+/* focus - focusOptions - preventScroll polyfill
+ * by calvellido (https://github.com/calvellido/focus-options-polyfill)
+ */
 (function() {
   if (
     typeof window === 'undefined' ||
