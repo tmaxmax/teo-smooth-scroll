@@ -65,5 +65,12 @@
       "preamble": null,
       "quote_style": "original"
     }
-  }
+  },
+  "liveSassCompile.settings.formats": [
+    {
+      "format": "compressed",
+      "extensionName": ".css",
+      "savePath": null
+    }
+  ]
 }
