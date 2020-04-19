@@ -136,11 +136,8 @@ htmlSectionLinks.forEach((link, index, links) => {
 // goes to the last active section on page load. if there is
 // none, it goes to the first.
 window.addEventListener('load', () => {
-  if (section.active) {
-    htmlSectionLinks[section.active].click();
-  } else {
-    htmlSectionLinks[0].click();
-  }
+  if (!section.active) section.active = 0;
+  htmlSectionLinks[section.active].click();
 });
 
 // Resize handling
@@ -251,7 +248,7 @@ window.addEventListener('keyup', (ev) => {
     const touchEndPositionY = ev.touches[0].clientY;
     const delta = touchStartPositionY - touchEndPositionY;
 
-    if (Math.abs(delta) > Math.min(100, screen.height / 4)) {
+    if (Math.abs(delta) > Math.min(25, screen.height / 4)) {
       window.removeEventListener('touchmove', onTouchMove);
       window.addEventListener('touchend', onTouchEnd(delta), {once: true});
     }
