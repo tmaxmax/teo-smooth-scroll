@@ -13,9 +13,10 @@ html {
   height: 100%;
   box-sizing: border-box;
   overflow: hidden;
+  position: fixed;
 }
 
-nav.aside {
+nav.section-links {
   position: fixed;
   top: 50%;
   right: 0;
@@ -28,7 +29,7 @@ nav.aside {
     position: relative;
     padding: 1em;
 
-    &::before {
+    &::after {
       content: '';
       background-color: black;
       border-radius: 100%;
@@ -38,11 +39,11 @@ nav.aside {
       top: 25%;
       right: 0;
       transform: scale(0.5);
-      transition: transform 0.5s cubic-bezier(0.25, 0.1, 0.25, 1);
+      transition: all 0.5s cubic-bezier(0.25, 0.1, 0.25, 1);
     }
 
     &.active {
-      &::before {
+      &::after {
         transform: scale(1);
       }
     }
@@ -51,9 +52,10 @@ nav.aside {
 
 section {
   &.huge {
-    min-height: 100%;
     padding: calc(2em + env(safe-area-inset-top)) calc(5.2em + env(safe-area-inset-right))
       calc(2em + env(safe-area-inset-bottom)) calc(2em + env(safe-area-inset-left));
+    height: 100%;
+    overflow: scroll;
   }
 
   &.random-colored {
@@ -78,9 +80,14 @@ section {
     }
   }
 
-  &.centered-vertical {
+  &.flex {
     display: flex;
-    align-items: center;
+  }
+
+  .container {
+    &.self-flex-center-vertical {
+      align-self: center;
+    }
   }
 }
 
