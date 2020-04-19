@@ -13,9 +13,10 @@ html {
   -webkit-box-sizing: border-box;
           box-sizing: border-box;
   overflow: hidden;
+  position: fixed;
 }
 
-nav.aside {
+nav.section-links {
   position: fixed;
   top: 50%;
   right: 0;
@@ -25,13 +26,13 @@ nav.aside {
   margin-right: 2em;
 }
 
-nav.aside a {
+nav.section-links a {
   display: block;
   position: relative;
   padding: 1em;
 }
 
-nav.aside a::before {
+nav.section-links a::after {
   content: '';
   background-color: black;
   border-radius: 100%;
@@ -42,20 +43,19 @@ nav.aside a::before {
   right: 0;
   -webkit-transform: scale(0.5);
           transform: scale(0.5);
-  -webkit-transition: -webkit-transform 0.5s cubic-bezier(0.25, 0.1, 0.25, 1);
-  transition: -webkit-transform 0.5s cubic-bezier(0.25, 0.1, 0.25, 1);
-  transition: transform 0.5s cubic-bezier(0.25, 0.1, 0.25, 1);
-  transition: transform 0.5s cubic-bezier(0.25, 0.1, 0.25, 1), -webkit-transform 0.5s cubic-bezier(0.25, 0.1, 0.25, 1);
+  -webkit-transition: all 0.5s cubic-bezier(0.25, 0.1, 0.25, 1);
+  transition: all 0.5s cubic-bezier(0.25, 0.1, 0.25, 1);
 }
 
-nav.aside a.active::before {
+nav.section-links a.active::after {
   -webkit-transform: scale(1);
           transform: scale(1);
 }
 
 section.huge {
-  min-height: 100%;
   padding: calc(2em + env(safe-area-inset-top)) calc(5.2em + env(safe-area-inset-right)) calc(2em + env(safe-area-inset-bottom)) calc(2em + env(safe-area-inset-left));
+  height: 100%;
+  overflow: scroll;
 }
 
 section.random-colored:nth-of-type(5n + 1) {
@@ -78,13 +78,16 @@ section.random-colored:nth-of-type(5n) {
   background-color: #06a3d8;
 }
 
-section.centered-vertical {
+section.flex {
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
-  -webkit-box-align: center;
-      -ms-flex-align: center;
-          align-items: center;
+}
+
+section .container.self-flex-center-vertical {
+  -ms-flex-item-align: center;
+      -ms-grid-row-align: center;
+      align-self: center;
 }
 
 html,
