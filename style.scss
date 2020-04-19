@@ -3,8 +3,17 @@ $Noto: 'Noto Serif', serif;
 
 * {
   box-sizing: inherit;
+  font-family: inherit;
   margin: 0;
   padding: 0;
+}
+
+.no-scroll-bar {
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  -ms-overflow-style: none;
 }
 
 body,
@@ -14,7 +23,10 @@ html {
   box-sizing: border-box;
   overflow: hidden;
   position: fixed;
+  font-family: $Noto;
 }
+
+$section-colors: (#ebd680, #d9a328, #64a4cd, #af4735, #06a3d8);
 
 nav.section-links {
   position: fixed;
@@ -22,24 +34,25 @@ nav.section-links {
   right: 0;
   transform: translateY(-50%);
   z-index: 1;
-  margin-right: 2em;
+  margin-right: 1.4em;
 
   a {
     display: block;
     position: relative;
-    padding: 1em;
+    padding: 0.2em;
+    margin-bottom: 0.1em;
+    text-decoration: none;
+    border-radius: 0.5em;
 
     &::after {
       content: '';
+      display: inline-block;
       background-color: black;
       border-radius: 100%;
       width: 1em;
       height: 1em;
-      position: absolute;
-      top: 25%;
-      right: 0;
       transform: scale(0.5);
-      transition: all 0.5s cubic-bezier(0.25, 0.1, 0.25, 1);
+      transition: transform 0.5s cubic-bezier(0.25, 0.1, 0.25, 1);
     }
 
     &.active {
@@ -50,43 +63,124 @@ nav.section-links {
   }
 }
 
-section {
+section.main {
   &.huge {
-    padding: calc(2em + env(safe-area-inset-top)) calc(5.2em + env(safe-area-inset-right))
-      calc(2em + env(safe-area-inset-bottom)) calc(2em + env(safe-area-inset-left));
+    padding: calc(env(safe-area-inset-top)) calc(3.2em + env(safe-area-inset-right))
+      calc(env(safe-area-inset-bottom)) calc(env(safe-area-inset-left));
     height: 100%;
-    overflow: scroll;
+    width: 100%;
+    overflow: hidden;
   }
 
   &.random-colored {
-    &:nth-of-type(5n + 1) {
-      background-color: #ebd680;
-    }
+    @for $i from 1 through length($section-colors) {
+      &:nth-of-type(#{length($section-colors)}n + #{$i}) {
+        background-color: nth($section-colors, $i);
 
-    &:nth-of-type(5n + 2) {
-      background-color: #d9a328;
+        .container {
+          .content {
+            &:focus {
+              outline: none;
+              box-shadow: 3px 3px 10px 0px darken(nth($section-colors, $i), 10%) inset,
+                -3px -3px 10px 0px lighten(nth($section-colors, $i), 8%) inset;
+            }
+          }
+        }
+      }
     }
-
-    &:nth-of-type(5n + 3) {
-      background-color: #64a4cd;
-    }
-
-    &:nth-of-type(5n + 4) {
-      background-color: #af4735;
-    }
-
-    &:nth-of-type(5n) {
-      background-color: #06a3d8;
-    }
-  }
-
-  &.flex {
-    display: flex;
   }
 
   .container {
-    &.self-flex-center-vertical {
-      align-self: center;
+    width: 100%;
+    height: 100%;
+    background-color: inherit;
+    padding: 2em 1em;
+    overflow: auto;
+
+    .content {
+      padding: 1em;
+      border-radius: 1em;
+      transition: box-shadow 0.5s cubic-bezier(0.25, 0.1, 0.25, 1);
+      overflow: auto;
+      text-overflow: ellipsis;
+
+      &::after {
+        content: '';
+        display: block;
+      }
+
+      &.self-flex-center-vertical {
+        height: fit-content;
+        align-self: center;
+      }
+    }
+
+    &.flex {
+      display: flex;
+    }
+
+    &.grid {
+      display: grid;
+      grid-template-columns: 100%;
+      grid-template-rows: max-content max-content;
+      gap: 0 1em;
+      align-items: center;
+      justify-items: center;
+
+      .content {
+        height: 100%;
+        max-width: 500px;
+      }
+    }
+  }
+}
+
+@media screen and (min-width: 583px) {
+  section.main {
+    .container {
+      &.grid {
+        grid-template-columns: 500px;
+      }
+    }
+  }
+}
+
+@media screen and (min-width: 883px) {
+  section.main {
+    .container {
+      &.grid {
+        grid-template-columns: 50% 50%;
+      }
+    }
+  }
+}
+
+@media screen and (min-width: 1099px) {
+  section.main {
+    .container {
+      &.grid {
+        grid-template-columns: 500px 500px;
+      }
+    }
+  }
+}
+
+@media screen and (min-width: 1399px) {
+  section.main {
+    .container {
+      &.grid {
+        grid-template-columns: 32.5% 32.5% 32.5%;
+      }
+    }
+  }
+}
+
+@media screen and (min-width: 1690px) {
+  section.main {
+    .container {
+      &.grid {
+        grid-template-columns: 500px 500px 500px;
+      }
     }
   }
 }
@@ -133,6 +227,26 @@ h2 {
   font-weight: normal;
 }
 
+$p-font-min: 1;
+$p-font-max: 1.2;
+p {
+  font-size: typographic(
+    $p-font-min,
+    $p-font-max,
+    $font-min-scale-screen-width,
+    $font-max-scale-screen-width
+  );
+  line-height: 1.6em;
+}
+
+nav.section-links {
+  a {
+    span {
+      font-size: typographic(0.8, 1, $font-min-scale-screen-width, $font-max-scale-screen-width);
+    }
+  }
+}
+
 @media screen and (max-width: #{$font-min-scale-screen-width}px) {
   h1 {
     font-size: #{$h1-font-min}em;
@@ -140,6 +254,10 @@ h2 {
 
   h2 {
     font-size: #{$h2-font-min}em;
+  }
+
+  p {
+    font-size: #{$p-font-min}em;
   }
 }
 
@@ -150,5 +268,9 @@ h2 {
 
   h2 {
     font-size: #{$h2-font-max}em;
+  }
+
+  p {
+    font-size: #{$p-font-max}em;
   }
 }
