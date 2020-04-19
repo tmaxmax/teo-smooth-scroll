@@ -24,6 +24,7 @@ html {
   overflow: hidden;
   position: fixed;
   font-family: $Noto;
+  -webkit-overflow-scrolling: touch;
 }
 
 $section-colors: (#ebd680, #d9a328, #64a4cd, #af4735, #06a3d8);
@@ -34,7 +35,7 @@ nav.section-links {
   right: 0;
   transform: translateY(-50%);
   z-index: 1;
-  margin-right: 1.4em;
+  margin-right: calc(1.4em + env(safe-area-inset-right));
 
   a {
     display: block;
