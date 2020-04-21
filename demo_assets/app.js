@@ -5,25 +5,30 @@
  * @return {boolean} true if device is iOS
  */
 const isIOS = () => {
-  return /iPad|iPhone|iPod/.test(navigator.platform) ||
-  (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  return (
+    /iPad|iPhone|iPod/.test(navigator.platform) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
+  );
 };
 
 const supportsPassive = (() => {
   let returnValue = false;
   try {
-    window.addEventListener('test', null, Object.defineProperty({}, 'passive', {
-      get: function() {
-        returnValue = true;
-      },
-    }));
+    window.addEventListener(
+        'test',
+        null,
+        Object.defineProperty({}, 'passive', {
+          get: function() {
+            returnValue = true;
+          },
+        }),
+    );
   } catch (error) {}
   return returnValue;
 })();
 
 const wheelOptions = supportsPassive ? {passive: false} : false;
-const wheelEvent =
-  'onwheel' in window ? 'wheel' : 'mousewheel';
+const wheelEvent = 'onwheel' in window ? 'wheel' : 'mousewheel';
 
 // Workaround for iOS to blur focused element when clicked outside.
 // Safari WebKit does not trigger click events on unclickable objects.
@@ -33,6 +38,13 @@ if (isIOS()) {
   });
 }
 
+window.addEventListener(
+    'touchmove',
+    (ev) => {
+      if (!userWontScroll()) ev.preventDefault();
+    },
+    wheelOptions,
+);
 /** Sections anchor links collection */
 const htmlSectionLinks = document.querySelectorAll('nav.section-links a');
 /** Sections collection */
@@ -45,9 +57,12 @@ const htmlSections = document.querySelectorAll('section.main');
 // over a container, it automatically gets focused.
 htmlSections.forEach((section) => {
   section.querySelectorAll('.content[tabindex="-1"]').forEach((elem) => {
-    elem.addEventListener('touchstart',
-        () => elem.focus({preventScroll: true}));
-    elem.addEventListener('mouseover', () => elem.focus({preventScroll: true}));
+    elem.addEventListener('touchstart', () => {
+      elem.focus({preventScroll: true});
+    });
+    elem.addEventListener('mouseover', () => {
+      elem.focus({preventScroll: true});
+    });
     elem.addEventListener('mouseleave', () => elem.blur());
   });
 });
@@ -171,11 +186,9 @@ window.addEventListener('load', () => {
  *
  * @return {boolean} true if active element isn't body
  */
-const userWontScroll =
-  () => {
-    return document.activeElement !==
-      (document.body || document.documentElement);
-  };
+const userWontScroll = () => {
+  return document.activeElement !== (document.body || document.documentElement);
+};
 
 /**
  * Changes the active secction when the user moves the scroll wheel,
