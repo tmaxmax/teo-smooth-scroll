@@ -77,16 +77,16 @@ section.main {
   }
 
   &.random-colored {
-    @for $i from 1 through length($section-colors) {
-      &:nth-of-type(#{length($section-colors)}n + #{$i}) {
-        background-color: nth($section-colors, $i);
+    @for $text-type from 1 through length($section-colors) {
+      &:nth-of-type(#{length($section-colors)}n + #{$text-type}) {
+        background-color: nth($section-colors, $text-type);
 
         .container {
           .content {
             &:focus {
               outline: none;
-              box-shadow: 3px 3px 10px 0px darken(nth($section-colors, $i), 10%) inset,
-                -3px -3px 10px 0px lighten(nth($section-colors, $i), 8%) inset;
+              box-shadow: 3px 3px 10px 0px darken(nth($section-colors, $text-type), 10%) inset,
+                -3px -3px 10px 0px lighten(nth($section-colors, $text-type), 8%) inset;
             }
           }
         }
@@ -131,19 +131,19 @@ section.main {
       grid-template-rows: max-content max-content max-content;
 
       $grid-columns: (#{$content-max-width}px);
-      @for $i from 1 through 2 {
+      @for $text-type from 1 through 2 {
         $grid-columns-auto: ();
 
-        @for $j from 1 through $i + 1 {
-          $grid-columns-auto: append($grid-columns-auto, calc(#{100% / ($i + 1)} - #{$font-base-size * $i / ($i + 1)}px));
+        @for $j from 1 through $text-type + 1 {
+          $grid-columns-auto: append($grid-columns-auto, calc(#{100% / ($text-type + 1)} - #{$font-base-size * $text-type / ($text-type + 1)}px));
         }
         $grid-columns: append($grid-columns, #{$content-max-width}px);
 
-        @media screen and (min-width: #{83 + $content-max-width * $i + $content-max-width * 3 / 5 + $i * $font-base-size}px) {
+        @media screen and (min-width: #{83 + $content-max-width * $text-type + $content-max-width * 3 / 5 + $text-type * $font-base-size}px) {
           grid-template-columns: #{$grid-columns-auto};
         }
 
-        @media screen and (min-width: #{83 + $content-max-width * ($i + 1) + $i * $font-base-size}px) {
+        @media screen and (min-width: #{83 + $content-max-width * ($text-type + 1) + $text-type * $font-base-size}px) {
           grid-template-columns: #{$grid-columns};
         }
       }
@@ -169,62 +169,100 @@ html,
 body {
   font-size: #{$font-base-size}px;
 }
-
-$h1-font-min: 3;
-$h1-font-max: 6;
-h1 {
-  font-size: typographic(
-    $h1-font-min,
-    $h1-font-max
-  );
-  font-weight: bold;
-  line-height: 0.9em;
+/*
+ * TEXT TYPES
+ *
+ * Helper functions:
+ *  - text-type-tag($text-type) => HTML Tag from the array
+ *  - min-font($text-type) => minimum font size from the array
+ *  - max-font($text-type) => maximum font size from the array
+ *  - properties($text-type) => properties map from the array
+ */
+$text-types:(
+  (
+    'tag': h1,
+    'font-sizes': (
+      'min': 3,
+      'max': 6
+    ), 
+    'properties': (
+      'font-weight': bold,
+      'line-height': 0.9em
+    )
+  ),
+  (
+    'tag': h2,
+    'font-sizes': (
+      'min': 2,
+      'max': 4
+    ), 
+    'properties': (
+      'font-weight': normal
+    )
+  ),
+  (
+    'tag': p,
+    'font-sizes': (
+      'min': 1, 
+      'max': 1.2
+    ), 
+    'properties': (
+      'line-height': 1.6em
+    )
+  )
+);
+@function text-type-tag($text-type) {
+  @return map-get($map: $text-type, $key: 'tag');
+}
+@function min-font($text-type) {
+  $font-sizes: map-get($map: $text-type, $key: 'font-sizes');
+  @if $font-sizes {
+    $min: map-get($map: $font-sizes, $key: 'min');
+    @if $min {
+      @return $min;
+    } @else {
+      @return $font-base-size;
+    }
+  }
+}
+@function max-font($text-type) {
+  $font-sizes: map-get($map: $text-type, $key: 'font-sizes');
+  @if $font-sizes {
+    $max: map-get($map: $font-sizes, $key: 'max');
+    @if $max {
+      @return $max;
+    } @else if min-font($text-type) {
+      @return min-font($text-type);
+    } @else {
+      @return $font-base-size;
+    }
+  }
+}
+@function properties($text-type) {
+  @return map-get($map: $text-type, $key: 'properties');
 }
 
-$h2-font-min: 2;
-$h2-font-max: 4;
-h2 {
-  font-size: typographic(
-    $h2-font-min,
-    $h2-font-max
-  );
-  font-weight: normal;
-}
-
-$p-font-min: 1;
-$p-font-max: 1.2;
-p {
-  font-size: typographic(
-    $p-font-min,
-    $p-font-max
-  );
-  line-height: 1.6em;
-}
-
-@media screen and (max-width: #{$font-min-scale-screen-width}px) {
-  h1 {
-    font-size: #{$h1-font-min}em;
-  }
-
-  h2 {
-    font-size: #{$h2-font-min}em;
-  }
-
-  p {
-    font-size: #{$p-font-min}em;
+@each $text-type in $text-types {
+  #{text-type-tag($text-type)} {
+    font-size: typographic(min-font($text-type), max-font($text-type));
+    @each $property, $value in properties($text-type) {
+      #{$property}: $value;
+    }
   }
 }
 
-@media screen and (min-width: #{$font-max-scale-screen-width}px) {
-  h1 {
-    font-size: #{$h1-font-max}em;
+@media screen and (max-width: $font-min-scale-screen-width) {
+  @each $text-type in $text-types {
+    #{text-type-tag($text-type)} {
+      font-size: min-font($text-type);
+    }
   }
+}
 
-  h2 {
-    font-size: #{$h2-font-max}em;
-  }
-
-  p {
-    font-size: #{$p-font-max}em;
+@media screen and (min-width: $font-max-scale-screen-width) {
+  @each $text-type in $text-types {
+    #{text-type-tag($text-type)} {
+      font-size: max-font($text-type);
+    }
   }
 }
