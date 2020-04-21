@@ -1,0 +1,83 @@
+@function _typographic($min, $max, $scale-min, $scale-max) {
+  @return calc(
+    #{$min}px + (#{$max} - #{$min}) * ((100vw - #{$scale-min}px) / (#{$scale-max} - #{$scale-min}))
+  );
+}
+
+@function _text-type-tag($text-type) {
+  @return map-get($map: $text-type, $key: 'tag');
+}
+
+@function _min-font($text-type) {
+  $font-sizes: map-get(
+    $map: $text-type,
+    $key: 'font-sizes',
+  );
+  @if $font-sizes {
+    $min: map-get(
+      $map: $font-sizes,
+      $key: 'min',
+    );
+    @if $min {
+      @return $min;
+    } @else {
+      @return $font-base-size;
+    }
+  }
+}
+
+@function _max-font($text-type) {
+  $font-sizes: map-get(
+    $map: $text-type,
+    $key: 'font-sizes',
+  );
+  @if $font-sizes {
+    $max: map-get(
+      $map: $font-sizes,
+      $key: 'max',
+    );
+    @if $max {
+      @return $max;
+    } @else if _min-font($text-type) {
+      @return _min-font($text-type);
+    } @else {
+      @return $font-base-size;
+    }
+  }
+}
+
+@function _properties($text-type) {
+  @return map-get($map: $text-type, $key: 'properties');
+}
+
+@mixin font-style($text-types, $font-min-scale-screen-width, $font-max-scale-screen-width) {
+  @each $text-type in $text-types {
+    #{_text-type-tag($text-type)} {
+      font-size: _typographic(
+        _min-font($text-type),
+        _max-font($text-type),
+        $font-min-scale-screen-width,
+        $font-max-scale-screen-width
+      );
+      @each $property, $value in _properties($text-type) {
+        #{$property}: $value;
+      }
+    }
+  }
+
+  @media screen and (max-width: #{$font-min-scale-screen-width}px) {
+    @each $text-type in $text-types {
+      #{_text-type-tag($text-type)} {
+        font-size: #{_min-font($text-type)}px;
+      }
+    }
+  }
+
+  @media screen and (min-width: #{$font-max-scale-screen-width}px) {
+    @each $text-type in $text-types {
+      #{_text-type-tag($text-type)} {
+        font-size: #{_max-font($text-type)}px;
+      }
+    }
+  }
+}
