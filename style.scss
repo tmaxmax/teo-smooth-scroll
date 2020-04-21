@@ -183,20 +183,6 @@ section.main {
       )
     ),
     (
-      'tag': h3,
-      'font-sizes': (
-        'min': 1.5 * $font-base-size,
-        'max': 3 * $font-base-size,
-      ),
-      'properties': (
-        'color': #bd1d1d,
-        'font-weight': 700,
-        'text-align': center,
-        'vertical-align': baseline,
-        'margin-left': 3em,
-      )
-    ),
-    (
       'tag': p,
       'font-sizes': (
         'min': 1 * $font-base-size,
