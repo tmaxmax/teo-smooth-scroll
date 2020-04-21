@@ -1,3 +1,5 @@
+$textmgmt-base-size: 16 !default;
+
 @function _typographic($min, $max, $scale-min, $scale-max) {
   @return calc(
     #{$min}px + (#{$max} - #{$min}) * ((100vw - #{$scale-min}px) / (#{$scale-max} - #{$scale-min}))
@@ -21,9 +23,10 @@
     @if $min {
       @return $min;
     } @else {
-      @return $font-base-size;
+      @return $textmgmt-base-size;
     }
   }
+  @return $textmgmt-base-size;
 }
 
 @function _max-font($text-type) {
@@ -41,9 +44,10 @@
     } @else if _min-font($text-type) {
       @return _min-font($text-type);
     } @else {
-      @return $font-base-size;
+      @return $textmgmt-base-size;
     }
   }
+  @return $textmgmt-base-size;
 }
 
 @function _properties($text-type) {
