@@ -274,3 +274,5 @@ window.addEventListener('keyup', (ev) => {
   // Starting the events chain
   window.addEventListener('touchstart', onTouchStart);
 })();
+
+teoSmoothScroll();
