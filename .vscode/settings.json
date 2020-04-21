@@ -13,8 +13,11 @@
     }
   ],
   "editor.formatOnPaste": true,
-  "editor.formatOnSave": true,
+  "editor.formatOnSave": false,
   "editor.tabSize": 2,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true 
+  },
   "files.encoding": "utf8",
   "files.eol": "\n",
   "files.insertFinalNewline": true,
