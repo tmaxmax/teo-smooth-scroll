@@ -182,7 +182,7 @@ const userWontScroll =
  * according to the sign of the delta number (negative for previous,
  * positive for next section).
  *
- * Then it removes the event listener, and adds it again, 100ms later,
+ * Then it removes the event listener, and adds it again, 500ms later,
  * so the event callback isn't executed too often.
  *
  * @param {WheelEvent} ev the wheel event from the event listener
@@ -198,7 +198,7 @@ const onWheel = (ev) => {
 
   setTimeout(() => {
     window.addEventListener(wheelEvent, onWheel, wheelOptions);
-  }, 100);
+  }, 500);
 };
 
 window.addEventListener('wheel', onWheel, wheelOptions);
