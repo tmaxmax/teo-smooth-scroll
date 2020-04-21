@@ -122,65 +122,10 @@ section.main {
 
     &.grid {
       display: grid;
-      grid-template-columns: 100%;
-      grid-template-rows: max-content max-content max-content;
       gap: 0 1em;
-      align-items: center;
-      justify-items: center;
 
       .content {
-        height: 100%;
         max-width: 500px;
-      }
-    }
-  }
-}
-
-@media screen and (min-width: 583px) {
-  section.main {
-    .container {
-      &.grid {
-        grid-template-columns: 500px;
-      }
-    }
-  }
-}
-
-@media screen and (min-width: 883px) {
-  section.main {
-    .container {
-      &.grid {
-        grid-template-columns: 50% 50%;
-      }
-    }
-  }
-}
-
-@media screen and (min-width: 1099px) {
-  section.main {
-    .container {
-      &.grid {
-        grid-template-columns: 500px 500px;
-      }
-    }
-  }
-}
-
-@media screen and (min-width: 1399px) {
-  section.main {
-    .container {
-      &.grid {
-        grid-template-columns: 32.5% 32.5% 32.5%;
-      }
-    }
-  }
-}
-
-@media screen and (min-width: 1690px) {
-  section.main {
-    .container {
-      &.grid {
-        grid-template-columns: 500px 500px 500px;
       }
     }
   }
