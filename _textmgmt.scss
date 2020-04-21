@@ -142,13 +142,13 @@ $textmgmt-base-size: 16 !default;
         }
       }
     }
-  }
 
-  @media screen and (min-width: #{$font-max-scale-screen-width}px) {
-    @each $text-type in $text-types {
-      @if _max-font($text-type) {
-        #{_text-type-tag($text-type)} {
-          font-size: #{_max-font($text-type)}px;
+    @media screen and (min-width: #{$font-max-scale-screen-width}px) {
+      @each $text-type in $text-types {
+        @if _max-font($text-type) {
+          #{_text-type-tag($text-type)} {
+            font-size: #{_max-font($text-type)}px;
+          }
         }
       }
     }
