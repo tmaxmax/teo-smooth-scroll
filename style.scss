@@ -1,3 +1,4 @@
+@import 'textmgmt';
 @import url('https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,700;1,400;1,700&display=swap');
 $Noto: 'Noto Serif', serif;
 
@@ -135,7 +136,10 @@ section.main {
         $grid-columns-auto: ();
 
         @for $j from 1 through $text-type + 1 {
-          $grid-columns-auto: append($grid-columns-auto, calc(#{100% / ($text-type + 1)} - #{$font-base-size * $text-type / ($text-type + 1)}px));
+          $grid-columns-auto: append(
+            $grid-columns-auto,
+            calc(#{100% / ($text-type + 1)} - #{$font-base-size * $text-type / ($text-type + 1)}px)
+          );
         }
         $grid-columns: append($grid-columns, #{$content-max-width}px);
 
@@ -155,114 +159,54 @@ section.main {
   }
 }
 
-$font-min-scale-screen-width: 320;
-$font-max-scale-screen-width: 1600;
-
-@function typographic($min, $max, $scale-min: $font-min-scale-screen-width, $scale-max: $font-max-scale-screen-width) {
-  @return calc(
-    #{$min}em + (#{$max} - #{$min}) * #{$font-base-size} * ((100vw - #{$scale-min}px) /
-          (#{$scale-max} - #{$scale-min}))
-  );
-}
-
-html,
-body {
-  font-size: #{$font-base-size}px;
-}
-/*
- * TEXT TYPES
- *
- * Helper functions:
- *  - text-type-tag($text-type) => HTML Tag from the array
- *  - min-font($text-type) => minimum font size from the array
- *  - max-font($text-type) => maximum font size from the array
- *  - properties($text-type) => properties map from the array
- */
-$text-types:(
+@include font-style(
   (
-    'tag': h1,
-    'font-sizes': (
-      'min': 3,
-      'max': 6
-    ), 
-    'properties': (
-      'font-weight': bold,
-      'line-height': 0.9em
+    (
+      'tag': h1,
+      'font-sizes': (
+        'min': 3 * $font-base-size,
+        'max': 6 * $font-base-size,
+      ),
+      'properties': (
+        'font-weight': bold,
+        'line-height': 0.9em,
+      )
+    ),
+    (
+      'tag': h2,
+      'font-sizes': (
+        'min': 2 * $font-base-size,
+        'max': 4 * $font-base-size,
+      ),
+      'properties': (
+        'font-weight': normal,
+      )
+    ),
+    (
+      'tag': h3,
+      'font-sizes': (
+        'min': 1.5 * $font-base-size,
+        'max': 3 * $font-base-size,
+      ),
+      'properties': (
+        'color': #bd1d1d,
+        'font-weight': 700,
+        'text-align': center,
+        'vertical-align': baseline,
+        'margin-left': 3em,
+      )
+    ),
+    (
+      'tag': p,
+      'font-sizes': (
+        'min': 1 * $font-base-size,
+        'max': 1.2 * $font-base-size,
+      ),
+      'properties': (
+        'line-height': 1.6em,
+      )
     )
   ),
-  (
-    'tag': h2,
-    'font-sizes': (
-      'min': 2,
-      'max': 4
-    ), 
-    'properties': (
-      'font-weight': normal
-    )
-  ),
-  (
-    'tag': p,
-    'font-sizes': (
-      'min': 1, 
-      'max': 1.2
-    ), 
-    'properties': (
-      'line-height': 1.6em
-    )
-  )
+  320,
+  1600
 );
-@function text-type-tag($text-type) {
-  @return map-get($map: $text-type, $key: 'tag');
-}
-@function min-font($text-type) {
-  $font-sizes: map-get($map: $text-type, $key: 'font-sizes');
-  @if $font-sizes {
-    $min: map-get($map: $font-sizes, $key: 'min');
-    @if $min {
-      @return $min;
-    } @else {
-      @return $font-base-size;
-    }
-  }
-}
-@function max-font($text-type) {
-  $font-sizes: map-get($map: $text-type, $key: 'font-sizes');
-  @if $font-sizes {
-    $max: map-get($map: $font-sizes, $key: 'max');
-    @if $max {
-      @return $max;
-    } @else if min-font($text-type) {
-      @return min-font($text-type);
-    } @else {
-      @return $font-base-size;
-    }
-  }
-}
-@function properties($text-type) {
-  @return map-get($map: $text-type, $key: 'properties');
-}
-
-@each $text-type in $text-types {
-  #{text-type-tag($text-type)} {
-    font-size: typographic(min-font($text-type), max-font($text-type));
-    @each $property, $value in properties($text-type) {
-      #{$property}: $value;
-    }
-  }
-}
-
-@media screen and (max-width: $font-min-scale-screen-width) {
-  @each $text-type in $text-types {
-    #{text-type-tag($text-type)} {
-      font-size: min-font($text-type);
-    }
-  }
-}
-
-@media screen and (min-width: $font-max-scale-screen-width) {
-  @each $text-type in $text-types {
-    #{text-type-tag($text-type)} {
-      font-size: max-font($text-type);
-    }
-  }
-}
