@@ -16,6 +16,8 @@ $Noto: 'Noto Serif', serif;
   -ms-overflow-style: none;
 }
 
+$font-base-size: 16;
+
 body,
 html {
   width: 100%;
@@ -24,6 +26,7 @@ html {
   overflow: hidden;
   position: fixed;
   font-family: $Noto;
+  font-size: #{$font-base-size}px;
   -webkit-overflow-scrolling: touch;
 }
 
@@ -120,28 +123,47 @@ section.main {
       display: flex;
     }
 
+    $content-max-width: 500;
+
     &.grid {
       display: grid;
       gap: 0 1em;
+      grid-template-rows: max-content max-content max-content;
+
+      $grid-columns: (#{$content-max-width}px);
+      @for $i from 1 through 2 {
+        $grid-columns-auto: ();
+
+        @for $j from 1 through $i + 1 {
+          $grid-columns-auto: append($grid-columns-auto, calc(#{100% / ($i + 1)} - #{$font-base-size * $i / ($i + 1)}px));
+        }
+        $grid-columns: append($grid-columns, #{$content-max-width}px);
+
+        @media screen and (min-width: #{83 + $content-max-width * $i + $content-max-width * 3 / 5 + $i * $font-base-size}px) {
+          grid-template-columns: #{$grid-columns-auto};
+        }
+
+        @media screen and (min-width: #{83 + $content-max-width * ($i + 1) + $i * $font-base-size}px) {
+          grid-template-columns: #{$grid-columns};
+        }
+      }
 
       .content {
-        max-width: 500px;
+        max-width: #{$content-max-width}px;
       }
     }
   }
 }
 
-$font-base-size: 16;
+$font-min-scale-screen-width: 320;
+$font-max-scale-screen-width: 1600;
 
-@function typographic($min, $max, $scale-min, $scale-max) {
+@function typographic($min, $max, $scale-min: $font-min-scale-screen-width, $scale-max: $font-max-scale-screen-width) {
   @return calc(
     #{$min}em + (#{$max} - #{$min}) * #{$font-base-size} * ((100vw - #{$scale-min}px) /
           (#{$scale-max} - #{$scale-min}))
   );
 }
-
-$font-min-scale-screen-width: 320;
-$font-max-scale-screen-width: 1600;
 
 html,
 body {
@@ -153,9 +175,7 @@ $h1-font-max: 6;
 h1 {
   font-size: typographic(
     $h1-font-min,
-    $h1-font-max,
-    $font-min-scale-screen-width,
-    $font-max-scale-screen-width
+    $h1-font-max
   );
   font-weight: bold;
   line-height: 0.9em;
@@ -166,9 +186,7 @@ $h2-font-max: 4;
 h2 {
   font-size: typographic(
     $h2-font-min,
-    $h2-font-max,
-    $font-min-scale-screen-width,
-    $font-max-scale-screen-width
+    $h2-font-max
   );
   font-weight: normal;
 }
@@ -178,19 +196,9 @@ $p-font-max: 1.2;
 p {
   font-size: typographic(
     $p-font-min,
-    $p-font-max,
-    $font-min-scale-screen-width,
-    $font-max-scale-screen-width
+    $p-font-max
   );
   line-height: 1.6em;
-}
-
-nav.section-links {
-  a {
-    span {
-      font-size: typographic(0.8, 1, $font-min-scale-screen-width, $font-max-scale-screen-width);
-    }
-  }
 }
 
 @media screen and (max-width: #{$font-min-scale-screen-width}px) {
