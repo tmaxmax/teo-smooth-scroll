@@ -12,8 +12,6 @@
       }
     }
   ],
-  "editor.formatOnPaste": true,
-  "editor.formatOnSave": false,
   "editor.tabSize": 2,
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": true 
@@ -23,9 +21,6 @@
   "files.insertFinalNewline": true,
   "javascript.format.enable": false,
   "javascript.validate.enable": false,
-  "[javascript]": {
-    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
-  },
   "minify.js": {
     "mangle": true,
     "compress": {
