@@ -16,17 +16,9 @@ $textmgmt-base-size: 16 !default;
     $key: 'font-sizes',
   );
   @if $font-sizes {
-    $min: map-get(
-      $map: $font-sizes,
-      $key: 'min',
-    );
-    @if $min {
-      @return $min;
-    } @else {
-      @return $textmgmt-base-size;
-    }
+    @return map-get($map: $font-sizes, $key: 'min');
   }
-  @return $textmgmt-base-size;
+  @return null;
 }
 
 @function _max-font($text-type) {
@@ -35,52 +27,129 @@ $textmgmt-base-size: 16 !default;
     $key: 'font-sizes',
   );
   @if $font-sizes {
-    $max: map-get(
-      $map: $font-sizes,
-      $key: 'max',
-    );
-    @if $max {
-      @return $max;
-    } @else if _min-font($text-type) {
-      @return _min-font($text-type);
-    } @else {
-      @return $textmgmt-base-size;
-    }
+    @return map-get($font-sizes, 'max');
   }
-  @return $textmgmt-base-size;
+  @return null;
 }
 
 @function _properties($text-type) {
   @return map-get($map: $text-type, $key: 'properties');
 }
 
+@function _process-fonts($text-types) {
+  $return-types: ();
+
+  @each $text-type in $text-types {
+    $new-type: ();
+
+    @if map-get($map: $text-type, $key: 'tag') {
+      $new-type: map-merge(
+        $new-type,
+        (
+          'tag': map-get($text-type, 'tag'),
+        )
+      );
+
+      $font-sizes: map-get($text-type, 'font-sizes');
+      $properties: map-get($text-type, 'properties');
+
+      @if $font-sizes and map-has-key($font-sizes, 'min') {
+        @if map-has-key($font-sizes, 'max') {
+          $new-type: map-merge(
+            $new-type,
+            (
+              'font-sizes': $font-sizes,
+            )
+          );
+          @if $properties and map-has-key($properties, 'font-size') {
+            $properties: map-remove($properties, 'font-size');
+          }
+        } @else {
+          $properties: map-remove($properties, 'font-size');
+          $properties: map-merge(
+            $properties,
+            (
+              'font-size': #{map-get($font-sizes, 'min')}px,
+            )
+          );
+        }
+      } @else if not map-has-key($properties, 'font-size') {
+        $final-font-size: $textmgmt-base-size;
+        @if $font-sizes and map-has-key($font-sizes, 'max') {
+          $final-font-size: map-get($font-sizes, 'max');
+        }
+        $properties: map-merge(
+          $properties,
+          (
+            'font-size': #{$final-font-size}px,
+          )
+        );
+      }
+
+      @if $properties {
+        $new-type: map-merge(
+          $new-type,
+          (
+            'properties': $properties,
+          )
+        );
+      }
+
+      @if map-has-key($new-type, 'font-sizes') or map-has-key($new-type, 'properties') {
+        $return-types: append($return-types, $new-type);
+      }
+    }
+  }
+
+  @return $return-types;
+}
+
+@function _media-necesarry($text-types) {
+  @each $text-type in $text-types {
+    @if _max-font($text-type) {
+      @return true;
+    }
+  }
+  @return false;
+}
+
 @mixin font-style($text-types, $font-min-scale-screen-width, $font-max-scale-screen-width) {
+  $text-types: _process-fonts($text-types);
+
   @each $text-type in $text-types {
     #{_text-type-tag($text-type)} {
-      font-size: _typographic(
-        _min-font($text-type),
-        _max-font($text-type),
-        $font-min-scale-screen-width,
-        $font-max-scale-screen-width
-      );
+      @if _max-font($text-type) {
+        font-size: _typographic(
+          _min-font($text-type),
+          _max-font($text-type),
+          $font-min-scale-screen-width,
+          $font-max-scale-screen-width
+        );
+      }
       @each $property, $value in _properties($text-type) {
         #{$property}: $value;
       }
     }
   }
 
-  @media screen and (max-width: #{$font-min-scale-screen-width}px) {
-    @each $text-type in $text-types {
-      #{_text-type-tag($text-type)} {
-        font-size: #{_min-font($text-type)}px;
+  @if _media-necesarry($text-types) {
+    @media screen and (max-width: #{$font-min-scale-screen-width}px) {
+      @each $text-type in $text-types {
+        @if _max-font($text-type) {
+          #{_text-type-tag($text-type)} {
+            font-size: #{_min-font($text-type)}px;
+          }
+        }
       }
     }
   }
 
   @media screen and (min-width: #{$font-max-scale-screen-width}px) {
     @each $text-type in $text-types {
-      #{_text-type-tag($text-type)} {
-        font-size: #{_max-font($text-type)}px;
+      @if _max-font($text-type) {
+        #{_text-type-tag($text-type)} {
+          font-size: #{_max-font($text-type)}px;
+        }
       }
     }
   }
