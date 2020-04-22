@@ -8,8 +8,10 @@
   } else {
     root.teoSmoothScroll = factory(root);
   }
-})(globalThis, function(window) {
+})(globalThis, function(window: Window | typeof globalThis) {
   'use strict';
 
-  return () => console.log('Hello world!');
+  const easings = Object.freeze({
+    sarmale: 5,
+  });
 });
