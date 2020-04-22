@@ -3,10 +3,15 @@
   "version": "1.0.0",
   "description": "This vanilla Javascript library enables smooth scrolling to any element or position in a container, be it the document or any container inside it.<br>It is also able to scroll inside any container set with `overflow: hidden`.",
   "main": "app.js",
-  "dependencies": {},
+  "dependencies": {
+    "@types/node": "^13.13.2"
+  },
   "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^2.29.0",
+    "@typescript-eslint/parser": "^2.29.0",
     "eslint": "^6.8.0",
-    "eslint-config-google": "^0.14.0"
+    "eslint-config-google": "^0.14.0",
+    "typescript": "^3.8.3"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
