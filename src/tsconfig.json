@@ -1,0 +1,10 @@
+{
+  "compileOnSave": true,
+  "compilerOptions": {
+    "allowJs": false,
+    "target": "ES5",
+    "sourceMap": true,
+    "newLine": "lf",
+    "watch": true,
+  }
+}

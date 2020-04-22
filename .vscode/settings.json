@@ -70,5 +70,6 @@
       "extensionName": ".css",
       "savePath": null
     }
-  ]
+  ],
+  "typescript.validate.enable": true
 }
