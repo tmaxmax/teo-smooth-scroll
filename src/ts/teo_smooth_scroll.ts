@@ -10,8 +10,4 @@
   }
 })(globalThis, function(window: Window | typeof globalThis) {
   'use strict';
-
-  const easings = Object.freeze({
-    sarmale: 5,
-  });
 });

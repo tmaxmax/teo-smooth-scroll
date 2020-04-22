@@ -12,8 +12,5 @@
     }
 })(globalThis, function (window) {
     'use strict';
-    var easings = Object.freeze({
-        sarmale: 5,
-    });
 });
 //# sourceMappingURL=teo_smooth_scroll.js.map
