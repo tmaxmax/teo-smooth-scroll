@@ -8,6 +8,6 @@
   } else {
     root.teoSmoothScroll = factory(root);
   }
-})(globalThis, function(window: Window | typeof globalThis) {
+})(globalThis, function(window: typeof globalThis) {
   'use strict';
 });
