@@ -148,11 +148,69 @@ var mergeScrollSettings = function () {
     });
     return merged;
 };
-var clickHandler = function (ev) {
-    ev.preventDefault();
+var getDocumentHeight = function () {
+    return Math.max(document.body.scrollHeight, document.documentElement.scrollHeight, document.body.offsetHeight, document.documentElement.offsetHeight, document.body.clientHeight, document.documentElement.clientHeight);
 };
+/**
+ * Focuses on the passed parameter object. If it isn't focusable
+ * by default, sets the object's tabindex to -1, focuses, then resets
+ * to default.
+ *
+ * @param {HTMLElement} target The target to focus on
+ */
+var focusTarget = function (target) {
+    target.focus();
+    if (document.activeElement === target)
+        return;
+    target.setAttribute('tabindex', '-1');
+    target.style.outline = 'none';
+    target.focus();
+    target.removeAttribute('tabindex');
+    target.style.outline = '';
+};
+var updateURL = function (target, currentSettings) {
+    if (!history.pushState)
+        return;
+    history.pushState({
+        teoSmoothScroll: JSON.stringify(currentSettings),
+        target: target.id,
+    }, document.title, target === document.documentElement ? '#top' : '#' + target.id);
+};
+var animateAnchorScroll = function (target, settings) {
+    var endPos = Math.max(target.getBoundingClientRect().bottom, target.getBoundingClientRect().top);
+    var startPos = document.documentElement.scrollTop;
+    var totalScrollAmount = endPos - startPos;
+    var easing = getEasing(settings.easing);
+    var previousScrollPosition = startPos;
+    var start;
+    console.log(target);
+    var loopAnchorScroll = function (timestamp) {
+        if (!start)
+            start = timestamp;
+        var elapsed = timestamp - start;
+        var percentage = (function () {
+            var ret = elapsed / settings.duration;
+            return ret;
+        })();
+        var currentScrollPosition = startPos + easing(percentage) * totalScrollAmount;
+        var scrollAmount = currentScrollPosition - previousScrollPosition;
+        previousScrollPosition = currentScrollPosition;
+        console.log(scrollAmount);
+        window.scrollBy(0, scrollAmount);
+        if (percentage <= 1)
+            requestAnimationFrame(loopAnchorScroll);
+    };
+    requestAnimationFrame(loopAnchorScroll);
+};
+function anchorClickHandler(currentSettings, target) {
+    return function (ev) {
+        ev.preventDefault();
+        animateAnchorScroll(target, currentSettings);
+        updateURL(target, currentSettings);
+    };
+}
+;
 export default function teoSmoothScroll(objects, userSettings) {
-    var _this = this;
     var settings = mergeScrollSettings(defaultSettings, userSettings || {});
     var triggers;
     if (typeof objects === 'string') {
@@ -162,7 +220,8 @@ export default function teoSmoothScroll(objects, userSettings) {
         triggers = Array.from(objects.triggers);
     }
     triggers.forEach(function (trigger) {
-        trigger.addEventListener('click', clickHandler.bind(_this), false);
+        var target = document.getElementById(trigger.getAttribute('href').replace('#', ''));
+        trigger.addEventListener('click', anchorClickHandler(settings, target), false);
     });
 }
 //# sourceMappingURL=teo_smooth_scroll.js.map

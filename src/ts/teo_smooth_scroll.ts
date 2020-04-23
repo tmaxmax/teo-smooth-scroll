@@ -211,8 +211,79 @@ const mergeScrollSettings = (...objects: ScrollSettings[]): ScrollSettings => {
   return merged;
 };
 
-const clickHandler = (ev: MouseEvent) => {
-  ev.preventDefault();
+const getDocumentHeight = () => {
+  return Math.max(
+      document.body.scrollHeight, document.documentElement.scrollHeight,
+      document.body.offsetHeight, document.documentElement.offsetHeight,
+      document.body.clientHeight, document.documentElement.clientHeight,
+  );
+};
+
+/**
+ * Focuses on the passed parameter object. If it isn't focusable
+ * by default, sets the object's tabindex to -1, focuses, then resets
+ * to default.
+ *
+ * @param {HTMLElement} target The target to focus on
+ */
+const focusTarget = (target: HTMLElement) => {
+  target.focus();
+  if (document.activeElement === target) return;
+
+  target.setAttribute('tabindex', '-1');
+  target.style.outline = 'none';
+  target.focus();
+  target.removeAttribute('tabindex');
+  target.style.outline = '';
+};
+
+const updateURL = (target: HTMLElement, currentSettings: ScrollSettings) => {
+  if (!history.pushState) return;
+
+  history.pushState(
+      {
+        teoSmoothScroll: JSON.stringify(currentSettings),
+        target: target.id,
+      },
+      document.title,
+      target === document.documentElement ? '#top' : '#' + target.id,
+  );
+};
+
+const animateAnchorScroll = (target: Node, settings: ScrollSettings) => {
+  const endPos = Math.max(target.getBoundingClientRect().bottom, target.getBoundingClientRect().top);
+  const startPos = document.documentElement.scrollTop;
+  const totalScrollAmount = endPos - startPos;
+  const easing = getEasing(settings.easing);
+  let previousScrollPosition = startPos;
+  let start;
+  console.log(target);
+
+  const loopAnchorScroll = (timestamp: number) => {
+    if (!start) start = timestamp;
+    const elapsed = timestamp - start;
+    const percentage = (function() {
+      const ret = elapsed / settings.duration;
+      return ret;
+    })();
+    const currentScrollPosition =
+      startPos + easing(percentage) * totalScrollAmount;
+    const scrollAmount = currentScrollPosition - previousScrollPosition;
+    previousScrollPosition = currentScrollPosition;
+    console.log(scrollAmount);
+    window.scrollBy(0, scrollAmount);
+    if (percentage <= 1) requestAnimationFrame(loopAnchorScroll);
+  };
+
+  requestAnimationFrame(loopAnchorScroll);
+};
+
+function anchorClickHandler(currentSettings: ScrollSettings, target: Node) {
+  return (ev: Event) => {
+    ev.preventDefault();
+    animateAnchorScroll(target, currentSettings);
+    updateURL(target, currentSettings);
+  };
 };
 
 export default function teoSmoothScroll(
@@ -226,6 +297,13 @@ export default function teoSmoothScroll(
     triggers = Array.from(objects.triggers);
   }
   triggers.forEach((trigger) => {
-    trigger.addEventListener('click', clickHandler.bind(this), false);
+    const target = document.getElementById(
+        trigger.getAttribute('href').replace('#', ''),
+    );
+    trigger.addEventListener(
+        'click',
+        anchorClickHandler(settings, target),
+        false,
+    );
   });
 }
