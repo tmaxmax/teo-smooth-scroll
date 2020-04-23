@@ -1,5 +1,7 @@
 'use strict';
 
+import teoSmoothScroll from '../src/ts/teo_smooth_scroll.js';
+
 /**
  * Determines if device is iOS or not.
  * @return {boolean} true if device is iOS
@@ -287,3 +289,9 @@ window.addEventListener('keyup', (ev) => {
   // Starting the events chain
   window.addEventListener('touchstart', onTouchStart);
 })();
+
+teoSmoothScroll('nav.section-links a', {
+  duration: 2000,
+  relative: true,
+  easing: {x1: 0.25, y1: 0.1, x2: 0.25, y2: 1},
+});
