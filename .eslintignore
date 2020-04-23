@@ -1,2 +1,4 @@
 _*.js
 *.min.js
+src/ts/*.js
+*.d.ts
