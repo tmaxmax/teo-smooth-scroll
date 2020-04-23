@@ -2,6 +2,13 @@
 
 import teoSmoothScroll from '../src/ts/teo_smooth_scroll.js';
 
+teoSmoothScroll('nav.section-links a', {
+  duration: 500,
+  relative: false,
+  easing: {x1: 0.25, y1: 0.1, x2: 0.25, y2: 1},
+});
+
+
 /**
  * Determines if device is iOS or not.
  * @return {boolean} true if device is iOS
@@ -188,9 +195,9 @@ window.addEventListener('load', () => {
  *
  * @return {boolean} true if active element isn't body
  */
-const userWontScroll = () => {
-  return document.activeElement !== (document.body || document.documentElement);
-};
+const userWontScroll = () =>
+  document.activeElement !== (document.body || document.documentElement) &&
+  document.activeElement !== htmlSections[section.active];
 
 /**
  * Changes the active secction when the user moves the scroll wheel,
@@ -289,9 +296,3 @@ window.addEventListener('keyup', (ev) => {
   // Starting the events chain
   window.addEventListener('touchstart', onTouchStart);
 })();
-
-teoSmoothScroll('nav.section-links a', {
-  duration: 2000,
-  relative: true,
-  easing: {x1: 0.25, y1: 0.1, x2: 0.25, y2: 1},
-});
