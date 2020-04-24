@@ -1,7 +1,5 @@
 declare type TimingFunction = (t: number) => number;
-declare type DOMElements = NodeList | HTMLCollection;
-declare type DOMElement = Node | HTMLElement;
-declare type CustomTargetSelector = (triggers: DOMElements, container: DOMElement) => DOMElement;
+declare type CustomTargetSelector = (triggers: HTMLCollectionOf<HTMLElement>, container: HTMLElement) => HTMLElement;
 interface BezierParams {
     x1: number;
     y1: number;
@@ -22,9 +20,9 @@ interface ScrollSettings {
     fixedHeader?: HTMLElement;
 }
 interface ScrollObjects {
-    triggers: HTMLCollection;
-    container: DOMElement;
-    target: DOMElement | CustomTargetSelector;
+    triggers: HTMLCollectionOf<HTMLElement>;
+    container: HTMLElement;
+    target: HTMLElement | CustomTargetSelector;
     distance?: number;
 }
 export default function teoSmoothScroll(objects?: string | ScrollObjects, userSettings?: ScrollSettings): void;

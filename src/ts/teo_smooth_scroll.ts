@@ -117,10 +117,9 @@ const cubicBezier = (function() {
 })();
 
 type TimingFunction = (t: number) => number;
-type DOMElements = NodeList | HTMLCollection;
-type DOMElement = Node | HTMLElement
 type CustomTargetSelector =
-  (triggers: DOMElements, container: DOMElement) => DOMElement;
+  (triggers: HTMLCollectionOf<HTMLElement>, container: HTMLElement) =>
+    HTMLElement;
 
 interface BezierParams {
   x1: number,
@@ -144,9 +143,9 @@ interface ScrollSettings {
 }
 
 interface ScrollObjects {
-  triggers: HTMLCollection,
-  container: DOMElement,
-  target: DOMElement | CustomTargetSelector
+  triggers: HTMLCollectionOf<HTMLElement>,
+  container: HTMLElement,
+  target: HTMLElement | CustomTargetSelector
   distance?: number
 }
 
@@ -176,7 +175,8 @@ const defaultSettings: ScrollSettings = Object.freeze({
  * @param {undefined | string | BezierParams} param User passed easing
  * @return {TimingFunction} Easing function to be used.
  */
-const getEasing = (param: undefined | keyof DefaultEasings | BezierParams ): TimingFunction => {
+const getEasing = (param: undefined | keyof DefaultEasings | BezierParams ):
+  TimingFunction => {
   if (typeof param === 'string') {
     if (defaultEasings[param]) {
       return defaultEasings[param];
@@ -233,10 +233,13 @@ const focusTarget = (target: HTMLElement) => {
   target.setAttribute('tabindex', '-1');
   target.style.outline = 'none';
   target.focus();
-  target.removeAttribute('tabindex');
-  target.style.outline = '';
 };
 
+/**
+ * Updates the browser history after scroll
+ * @param {HTMLElement} target The element that was scrolled to
+ * @param {ScrollSettings} currentSettings The scroll settings
+ */
 const updateURL = (target: HTMLElement, currentSettings: ScrollSettings) => {
   if (!history.pushState) return;
 
@@ -250,14 +253,23 @@ const updateURL = (target: HTMLElement, currentSettings: ScrollSettings) => {
   );
 };
 
-const animateAnchorScroll = (target: Node, settings: ScrollSettings) => {
-  const endPos = Math.max(target.getBoundingClientRect().bottom, target.getBoundingClientRect().top);
-  const startPos = document.documentElement.scrollTop;
+const getElementPosition = (element: HTMLElement, parent: HTMLElement):
+  {top: number, left: number} => {
+  let topPos = 0; let leftPos = 0;
+  do {
+    topPos += element.offsetTop || 0;
+    leftPos += element.offsetLeft || 0;
+    element = element.offsetParent;
+  } while (element && element !== parent.offsetParent);
+  return {top: topPos, left: leftPos};
+};
+
+const animateAnchorScroll = (target: HTMLElement, settings: ScrollSettings) => {
+  const endPos = Math.floor(getElementPosition(target, document.body).top);
+  const startPos = window.scrollY;
   const totalScrollAmount = endPos - startPos;
   const easing = getEasing(settings.easing);
-  let previousScrollPosition = startPos;
-  let start;
-  console.log(target);
+  let start: number;
 
   const loopAnchorScroll = (timestamp: number) => {
     if (!start) start = timestamp;
@@ -268,17 +280,20 @@ const animateAnchorScroll = (target: Node, settings: ScrollSettings) => {
     })();
     const currentScrollPosition =
       startPos + easing(percentage) * totalScrollAmount;
-    const scrollAmount = currentScrollPosition - previousScrollPosition;
-    previousScrollPosition = currentScrollPosition;
-    console.log(scrollAmount);
-    window.scrollBy(0, scrollAmount);
+    window.scrollTo(0, Math.floor(currentScrollPosition));
     if (percentage <= 1) requestAnimationFrame(loopAnchorScroll);
+    if (percentage >= 1 && currentScrollPosition !== endPos) {
+      window.scrollTo(0, endPos);
+    };
   };
 
   requestAnimationFrame(loopAnchorScroll);
 };
 
-function anchorClickHandler(currentSettings: ScrollSettings, target: Node) {
+function anchorClickHandler(
+    currentSettings: ScrollSettings,
+    target: HTMLElement,
+) {
   return (ev: Event) => {
     ev.preventDefault();
     animateAnchorScroll(target, currentSettings);
@@ -290,7 +305,7 @@ export default function teoSmoothScroll(
     objects?: string | ScrollObjects,
     userSettings?: ScrollSettings) {
   const settings = mergeScrollSettings(defaultSettings, userSettings || {});
-  let triggers: Node[];
+  let triggers: HTMLElement[];
   if (typeof objects === 'string') {
     triggers = Array.from(document.querySelectorAll(objects));
   } else {

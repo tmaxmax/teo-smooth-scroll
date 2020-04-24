@@ -165,9 +165,12 @@ var focusTarget = function (target) {
     target.setAttribute('tabindex', '-1');
     target.style.outline = 'none';
     target.focus();
-    target.removeAttribute('tabindex');
-    target.style.outline = '';
 };
+/**
+ * Updates the browser history after scroll
+ * @param {HTMLElement} target The element that was scrolled to
+ * @param {ScrollSettings} currentSettings The scroll settings
+ */
 var updateURL = function (target, currentSettings) {
     if (!history.pushState)
         return;
@@ -176,14 +179,22 @@ var updateURL = function (target, currentSettings) {
         target: target.id,
     }, document.title, target === document.documentElement ? '#top' : '#' + target.id);
 };
+var getElementPosition = function (element, parent) {
+    var topPos = 0;
+    var leftPos = 0;
+    do {
+        topPos += element.offsetTop || 0;
+        leftPos += element.offsetLeft || 0;
+        element = element.offsetParent;
+    } while (element && element !== parent.offsetParent);
+    return { top: topPos, left: leftPos };
+};
 var animateAnchorScroll = function (target, settings) {
-    var endPos = Math.max(target.getBoundingClientRect().bottom, target.getBoundingClientRect().top);
-    var startPos = document.documentElement.scrollTop;
+    var endPos = Math.floor(getElementPosition(target, document.body).top);
+    var startPos = window.scrollY;
     var totalScrollAmount = endPos - startPos;
     var easing = getEasing(settings.easing);
-    var previousScrollPosition = startPos;
     var start;
-    console.log(target);
     var loopAnchorScroll = function (timestamp) {
         if (!start)
             start = timestamp;
@@ -193,12 +204,13 @@ var animateAnchorScroll = function (target, settings) {
             return ret;
         })();
         var currentScrollPosition = startPos + easing(percentage) * totalScrollAmount;
-        var scrollAmount = currentScrollPosition - previousScrollPosition;
-        previousScrollPosition = currentScrollPosition;
-        console.log(scrollAmount);
-        window.scrollBy(0, scrollAmount);
+        window.scrollTo(0, Math.floor(currentScrollPosition));
         if (percentage <= 1)
             requestAnimationFrame(loopAnchorScroll);
+        if (percentage >= 1 && currentScrollPosition !== endPos) {
+            window.scrollTo(0, endPos);
+        }
+        ;
     };
     requestAnimationFrame(loopAnchorScroll);
 };
