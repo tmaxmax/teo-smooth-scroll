@@ -163,8 +163,8 @@ var focusTarget = function (target) {
     if (document.activeElement === target)
         return;
     target.setAttribute('tabindex', '-1');
-    target.style.outline = 'none';
     target.focus();
+    target.removeAttribute('tabindex');
 };
 /**
  * Updates the browser history after scroll
@@ -190,7 +190,7 @@ var getElementPosition = function (element, parent) {
     return { top: topPos, left: leftPos };
 };
 var animateAnchorScroll = function (target, settings) {
-    var endPos = Math.floor(getElementPosition(target, document.body).top);
+    var endPos = Math.min(Math.floor(getElementPosition(target, document.body).top), getDocumentHeight() - window.innerHeight);
     var startPos = window.scrollY;
     var totalScrollAmount = endPos - startPos;
     var easing = getEasing(settings.easing);
@@ -219,11 +219,25 @@ function anchorClickHandler(currentSettings, target) {
         ev.preventDefault();
         animateAnchorScroll(target, currentSettings);
         updateURL(target, currentSettings);
+        focusTarget(target);
     };
 }
 ;
+var addAnchorEventListeners = function (triggers, settings) {
+    triggers.forEach(function (trigger) {
+        var target = document.getElementById(trigger.getAttribute('href').replace('#', ''));
+        trigger.addEventListener('click', anchorClickHandler(settings, target).bind(trigger), false);
+    });
+};
+var removeAnchorEventListeners = function (triggers, settings) {
+    triggers.forEach(function (trigger) {
+        var target = document.getElementById(trigger.getAttribute('href').replace('#', ''));
+        trigger.removeEventListener('click', anchorClickHandler(settings, target).bind(trigger), false);
+    });
+};
 export default function teoSmoothScroll(objects, userSettings) {
     var settings = mergeScrollSettings(defaultSettings, userSettings || {});
+    var isEnabled = true;
     var triggers;
     if (typeof objects === 'string') {
         triggers = Array.from(document.querySelectorAll(objects));
@@ -231,9 +245,20 @@ export default function teoSmoothScroll(objects, userSettings) {
     else {
         triggers = Array.from(objects.triggers);
     }
-    triggers.forEach(function (trigger) {
-        var target = document.getElementById(trigger.getAttribute('href').replace('#', ''));
-        trigger.addEventListener('click', anchorClickHandler(settings, target), false);
-    });
+    addAnchorEventListeners(triggers, settings);
+    return {
+        enable: function (state) {
+            console.log(state === isEnabled);
+            if (state === isEnabled)
+                return;
+            isEnabled = state;
+            if (isEnabled) {
+                addAnchorEventListeners(triggers, settings);
+            }
+            else {
+                removeAnchorEventListeners(triggers, settings);
+            }
+        },
+    };
 }
 //# sourceMappingURL=teo_smooth_scroll.js.map

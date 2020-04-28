@@ -140,6 +140,8 @@ interface ScrollSettings {
   relative?: boolean,
   easing?: keyof DefaultEasings | BezierParams,
   fixedHeader?: HTMLElement,
+  callbackStart?: () => void,
+  callbackEnd?: () => void,
 }
 
 interface ScrollObjects {
@@ -150,7 +152,7 @@ interface ScrollObjects {
 }
 
 interface ScrollControlObject {
-  enabled: (isEnabled: boolean) => void
+  enable(isEnabled: boolean): void,
 }
 
 /**
@@ -175,7 +177,7 @@ const defaultSettings: ScrollSettings = Object.freeze({
  * @param {undefined | string | BezierParams} param User passed easing
  * @return {TimingFunction} Easing function to be used.
  */
-const getEasing = (param: undefined | keyof DefaultEasings | BezierParams ):
+const getEasing = (param: undefined | keyof DefaultEasings | BezierParams):
   TimingFunction => {
   if (typeof param === 'string') {
     if (defaultEasings[param]) {
@@ -231,8 +233,8 @@ const focusTarget = (target: HTMLElement) => {
   if (document.activeElement === target) return;
 
   target.setAttribute('tabindex', '-1');
-  target.style.outline = 'none';
   target.focus();
+  target.removeAttribute('tabindex');
 };
 
 /**
@@ -259,13 +261,16 @@ const getElementPosition = (element: HTMLElement, parent: HTMLElement):
   do {
     topPos += element.offsetTop || 0;
     leftPos += element.offsetLeft || 0;
-    element = element.offsetParent;
+    element = (<HTMLElement>element.offsetParent);
   } while (element && element !== parent.offsetParent);
   return {top: topPos, left: leftPos};
 };
 
 const animateAnchorScroll = (target: HTMLElement, settings: ScrollSettings) => {
-  const endPos = Math.floor(getElementPosition(target, document.body).top);
+  const endPos = Math.min(
+      Math.floor(getElementPosition(target, document.body).top),
+      getDocumentHeight() - window.innerHeight,
+  );
   const startPos = window.scrollY;
   const totalScrollAmount = endPos - startPos;
   const easing = getEasing(settings.easing);
@@ -298,27 +303,60 @@ function anchorClickHandler(
     ev.preventDefault();
     animateAnchorScroll(target, currentSettings);
     updateURL(target, currentSettings);
+    focusTarget(target);
   };
 };
 
-export default function teoSmoothScroll(
-    objects?: string | ScrollObjects,
-    userSettings?: ScrollSettings) {
-  const settings = mergeScrollSettings(defaultSettings, userSettings || {});
-  let triggers: HTMLElement[];
-  if (typeof objects === 'string') {
-    triggers = Array.from(document.querySelectorAll(objects));
-  } else {
-    triggers = Array.from(objects.triggers);
-  }
+const addAnchorEventListeners = (triggers: HTMLElement[], settings: ScrollSettings) => {
   triggers.forEach((trigger) => {
     const target = document.getElementById(
         trigger.getAttribute('href').replace('#', ''),
     );
     trigger.addEventListener(
         'click',
-        anchorClickHandler(settings, target),
+        anchorClickHandler(settings, target).bind(trigger),
         false,
     );
   });
+};
+
+const removeAnchorEventListeners = (triggers: HTMLElement[], settings: ScrollSettings) => {
+  triggers.forEach((trigger) => {
+    const target = document.getElementById(
+        trigger.getAttribute('href').replace('#', ''),
+    );
+    trigger.removeEventListener(
+        'click',
+        anchorClickHandler(settings, target).bind(trigger),
+        false,
+    );
+  });
+};
+
+export default function teoSmoothScroll(
+    objects?: string | ScrollObjects,
+    userSettings?: ScrollSettings): ScrollControlObject {
+  const settings = mergeScrollSettings(defaultSettings, userSettings || {});
+  let isEnabled = true;
+  let triggers: HTMLElement[];
+  if (typeof objects === 'string') {
+    triggers = Array.from(document.querySelectorAll(objects));
+  } else {
+    triggers = Array.from(objects.triggers);
+  }
+  addAnchorEventListeners(triggers, settings);
+
+  return {
+    enable(state: boolean) {
+      console.log(state === isEnabled);
+      if (state === isEnabled) return;
+
+      isEnabled = state;
+      if (isEnabled) {
+        addAnchorEventListeners(triggers, settings);
+      } else {
+        removeAnchorEventListeners(triggers, settings);
+      }
+    },
+  };
 }

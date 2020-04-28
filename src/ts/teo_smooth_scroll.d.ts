@@ -18,6 +18,8 @@ interface ScrollSettings {
     relative?: boolean;
     easing?: keyof DefaultEasings | BezierParams;
     fixedHeader?: HTMLElement;
+    callbackStart?: () => void;
+    callbackEnd?: () => void;
 }
 interface ScrollObjects {
     triggers: HTMLCollectionOf<HTMLElement>;
@@ -25,5 +27,8 @@ interface ScrollObjects {
     target: HTMLElement | CustomTargetSelector;
     distance?: number;
 }
-export default function teoSmoothScroll(objects?: string | ScrollObjects, userSettings?: ScrollSettings): void;
+interface ScrollControlObject {
+    enable(isEnabled: boolean): void;
+}
+export default function teoSmoothScroll(objects?: string | ScrollObjects, userSettings?: ScrollSettings): ScrollControlObject;
 export {};
