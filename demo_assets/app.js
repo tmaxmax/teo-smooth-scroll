@@ -2,12 +2,11 @@
 
 import teoSmoothScroll from '../src/ts/teo_smooth_scroll.js';
 
-teoSmoothScroll('nav.section-links a', {
+const navbarSmoothScroll = teoSmoothScroll('nav.section-links a', {
   duration: 500,
   relative: false,
   easing: {x1: 0.25, y1: 0.1, x2: 0.25, y2: 1},
 });
-
 
 /**
  * Determines if device is iOS or not.
@@ -45,6 +44,24 @@ if (isIOS()) {
   window.addEventListener('touchend', (ev) => {
     if (ev.target !== document.activeElement) document.activeElement.blur();
   });
+
+  document.querySelectorAll('section.main .container').forEach((container) => {
+    let touchStartPositionY;
+
+    container.addEventListener('touchstart', (ev) => {
+      touchStartPositionY = ev.touches[0].clientY;
+    });
+    container.addEventListener('touchmove', (ev) => {
+      const touchEndPositionY = ev.touches[0].clientY;
+      const delta = touchEndPositionY - touchStartPositionY;
+
+      if ((container.scrollTop === 0 && delta > 0) ||
+           // eslint-disable-next-line max-len
+           (container.scrollHeight - container.scrollTop === container.clientHeight && delta < 0)) {
+        ev.preventDefault();
+      }
+    });
+  });
 }
 
 window.addEventListener(
@@ -72,7 +89,9 @@ htmlSections.forEach((section) => {
     elem.addEventListener('mouseover', () => {
       elem.focus({preventScroll: true});
     });
-    elem.addEventListener('mouseleave', () => elem.blur());
+    elem.addEventListener('mouseleave', () => {
+      elem.blur();
+    });
   });
 });
 
@@ -252,8 +271,8 @@ window.addEventListener('keyup', (ev) => {
    */
   const onTouchStart = (ev) => {
     touchStartPositionY = ev.touches[0].clientY;
-    window.removeEventListener('touchstart', onTouchStart);
-    window.addEventListener('touchmove', onTouchMove);
+    document.body.removeEventListener('touchstart', onTouchStart);
+    document.body.addEventListener('touchmove', onTouchMove, supportsPassive);
   };
 
   /**
@@ -262,17 +281,21 @@ window.addEventListener('keyup', (ev) => {
    * This function keeps recording the current vertical coordinate
    * of user's touch, and when the absolute difference between the starting
    * coordinate and current coordinate reach the set threshold (minimum
-   * between 100px and a quarter of screen's height)
+   * between 25px and a quarter of screen's height)
    *
    * @param {TouchEvent} ev the touchmove event
    */
   const onTouchMove = (ev) => {
+    if (!userWontScroll() && ev.cancelable) ev.preventDefault();
+
     const touchEndPositionY = ev.touches[0].clientY;
     const delta = touchStartPositionY - touchEndPositionY;
 
     if (Math.abs(delta) > Math.min(25, screen.height / 4)) {
-      window.removeEventListener('touchmove', onTouchMove);
-      window.addEventListener('touchend', onTouchEnd(delta), {once: true});
+      // eslint-disable-next-line max-len
+      document.body.removeEventListener('touchmove', onTouchMove, supportsPassive);
+      // eslint-disable-next-line max-len
+      document.body.addEventListener('touchend', onTouchEnd(delta), {once: true});
     }
   };
 
@@ -289,10 +312,10 @@ window.addEventListener('keyup', (ev) => {
         if (delta < 0) htmlSectionLinks[section.previous].click();
         else htmlSectionLinks[section.next].click();
       }
-      window.addEventListener('touchstart', onTouchStart);
+      document.body.addEventListener('touchstart', onTouchStart);
     };
   };
 
   // Starting the events chain
-  window.addEventListener('touchstart', onTouchStart);
+  document.body.addEventListener('touchstart', onTouchStart);
 })();
